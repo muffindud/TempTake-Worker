@@ -7,7 +7,10 @@ HC12::HC12(int rxPin, int txPin, int setPin){
     this->setPin = setPin;
 
     this->setCommandMode(true);
-    this->sendCommand("AT+1200");
+    this->sendCommand("AT+B1200");
+    this->sendCommand("AT+P8");
+    this->sendCommand("AT+FU3");
+    this->sendCommand("AT+U8N1");
     this->setCommandMode(false);
 
     Serial.begin(1200);
