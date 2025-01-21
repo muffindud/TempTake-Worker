@@ -68,4 +68,15 @@ ACK_T streamToAck(u8_t* stream);
 */
 u16_t crc16(u8_t* data_p, u8_t length);
 
+/*
+* @brief Get the ID of a packet
+* @param source_mac: u8_t* source_mac
+* @param dest_mac: u8_t* dest_mac
+* @param data: u8_t* data
+* @param length: u8_t length
+* @param crc16: u16_t crc16
+* @return u16_t id
+*/
+u16_t getId(u8_t* source_mac, u8_t dest_mac, u8_t* data, u8_t length, u16_t crc16);
+
 #endif

@@ -35,8 +35,7 @@ ACK_T streamToAck(u8_t* stream){
     return ack;
 }
 
-u16_t crc16(u8_t *data_p, u8_t length)
-{
+u16_t crc16(u8_t *data_p, u8_t length){
     u8_t x;
     u16_t crc = 0xFFFF;
 
@@ -47,4 +46,17 @@ u16_t crc16(u8_t *data_p, u8_t length)
     }
 
     return crc;
+}
+
+u16_t getId(u8_t* source_mac, u8_t* dest_mac, u8_t* data, u8_t length, u16_t crc16) {
+    if (length == 0 || data == NULL || source_mac == NULL || dest_mac == NULL) {
+        return 0; // Return 0 for invalid input
+    }
+
+    u16_t id = 0x0;
+    int mac_idx = data[length / 2] % 6;
+    id |= ((source_mac[mac_idx] + dest_mac[mac_idx]) & 0xFF) << 8;
+    id |= ((crc16 & 0xFF) + ((crc16 & 0xFF00) >> 8));
+
+    return id;
 }
