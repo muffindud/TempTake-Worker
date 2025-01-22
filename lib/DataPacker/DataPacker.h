@@ -17,6 +17,7 @@
 struct META_T{
     uint16_t crc16;
     uint8_t manager_mac[6];
+    uint8_t worker_mac[6];
     uint16_t id;
     uint8_t index_packet;
     uint8_t total_packet_s;
