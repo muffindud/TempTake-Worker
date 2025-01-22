@@ -2,7 +2,7 @@
 #define MQ135_H
 
 #include <Arduino.h>
-#include <driver/adc.h>
+// #include <driver/adc.h>
 
 #define PARA 116.6020682
 #define PARB 2.769034857
@@ -15,7 +15,8 @@
 #define CORG 1.130128205
 #define ATMOCO2 422.5
 #define RLOAD_KOHM 10.0
-#define ADC_RESOLUTION 4095.0
+// #define ADC_RESOLUTION 4095.0
+#define ADC_RESOLUTION 1023.0
 
 class MQ135{
     private:
@@ -28,6 +29,8 @@ class MQ135{
         * @param rZero: The RZero value of the MQ135 sensor
         */
         MQ135(int pin, float rZero);
+
+        // void configureADC();
 
         /*
         * @brief Get the resistance of the MQ135 sensor
