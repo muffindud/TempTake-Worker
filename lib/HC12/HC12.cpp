@@ -47,7 +47,7 @@ void HC12::setChannel(uint8_t channel){
 }
 
 void HC12::sendData(uint8_t* data_stream){
-    serial->write(data_stream, 64);
+    serial->write(data_stream, DAT_SIZE);
 }
 
 bool HC12::ackReceived(uint16_t id){
