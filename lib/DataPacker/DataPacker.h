@@ -3,6 +3,9 @@
 
 #include <Arduino.h>
 
+#define DAT_MODE 0x0D
+#define ACK_MODE 0x0A
+
 /*
 * @brief Structure for the meta data of a packet
 * @param crc16: CRC16 checksum of the data
@@ -12,11 +15,11 @@
 * @param total_packet_s: Total packets
 */
 struct META_T{
-    u16_t crc16;
-    u8_t manager_mac[6];
-    u16_t id;
-    u8_t index_packet;
-    u8_t total_packet_s;
+    uint16_t crc16;
+    uint8_t manager_mac[6];
+    uint16_t id;
+    uint8_t index_packet;
+    uint8_t total_packet_s;
 };
 const int META_SIZE = sizeof(META_T);
 
@@ -28,10 +31,10 @@ const int META_SIZE = sizeof(META_T);
 * @param data: Data of the packet
 */
 struct DAT_T{
-    u8_t type = 0x0D;
+    uint8_t type = 0x0D;
     META_T meta;
-    u8_t length;
-    u8_t* data;
+    uint8_t length;
+    uint8_t* data;
 };
 const int DAT_SIZE = sizeof(DAT_T);
 
@@ -41,7 +44,7 @@ const int DAT_SIZE = sizeof(DAT_T);
 * @param meta: Meta data of the packet
 */
 struct ACK_T{
-    u8_t type = 0x0A;
+    uint8_t type = 0x0A;
     META_T meta;
 };
 const int ACK_SIZE = sizeof(ACK_T);
@@ -51,14 +54,14 @@ const int ACK_SIZE = sizeof(ACK_T);
 * @param data: DAT_T struct
 * @return u8_t* stream
 */
-u8_t* dataToStream(DAT_T data);
+uint8_t* dataToStream(DAT_T data);
 
 /*
 * @brief Create a DAT_T struct from a stream
 * @param stream: u8_t* stream
 * @return DAT_T struct
 */
-ACK_T streamToAck(u8_t* stream);
+ACK_T streamToAck(uint8_t* stream);
 
 /*
 * @brief Calculate the CRC16 checksum of a data
@@ -66,7 +69,7 @@ ACK_T streamToAck(u8_t* stream);
 * @param length: u16_t length
 * @return u16_t crc16
 */
-u16_t crc16(u8_t* data_p, u8_t length);
+uint16_t crc16(uint8_t* data_p, uint8_t length);
 
 /*
 * @brief Get the ID of a packet
@@ -77,6 +80,6 @@ u16_t crc16(u8_t* data_p, u8_t length);
 * @param crc16: u16_t crc16
 * @return u16_t id
 */
-u16_t getId(u8_t* source_mac, u8_t dest_mac, u8_t* data, u8_t length, u16_t crc16);
+uint16_t getId(uint8_t* source_mac, uint8_t dest_mac, uint8_t* data, uint8_t length, uint16_t crc16);
 
 #endif

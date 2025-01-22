@@ -32,7 +32,7 @@ void HC12::sendCommand(String command){
     }
 }
 
-void HC12::setChannel(u_int8_t channel){
+void HC12::setChannel(uint8_t channel){
     if(channel < 1 || channel > 127){
         return;
     }
@@ -40,9 +40,34 @@ void HC12::setChannel(u_int8_t channel){
     this->sendCommand("AT+C" + String(channel));
 }
 
-void HC12::sendData(String data){
-    // TODO: Do once DataPacker is implemented
-    // TODO: Check if data is too long
+void HC12::sendData(uint8_t* data_stream){
+    uint8_t* data = (uint8_t*)malloc(64);
+    for(int i = 0; i < 64; i++){
+        data[i] = i < 64 ? data_stream[i] : 0;
+    }
+
+    Serial.write(data, 64);
+}
+
+bool HC12::ackReceived(uint16_t id){
+    uint8_t* ack_stream = (uint8_t*)malloc(64);
+    int incoming = 0;
+
+    while(incoming < 100){
+        incoming++;
+
+        if(Serial.available() >= 64){
+            Serial.readBytes(ack_stream, 64);
+            ACK_T ack = streamToAck(ack_stream);
+            free(ack_stream);
+            if(ack.meta.id == id){
+                return true;
+            }
+        }
+    }
+
+    free(ack_stream);
+    return false;
 }
 
 void HC12::setSleep(bool state){

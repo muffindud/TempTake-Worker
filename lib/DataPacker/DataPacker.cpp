@@ -1,11 +1,7 @@
 #include "DataPacker.h"
 
-
-#define DAT_MODE 0x0D
-#define ACK_MODE 0x0A
-
-u8_t* dataToStream(DAT_T data){
-    u8_t* stream = (u8_t*)malloc(DAT_SIZE + data.length);
+uint8_t* dataToStream(DAT_T data){
+    uint8_t* stream = (uint8_t*)malloc(DAT_SIZE + data.length);
     stream[0] = data.type;
     stream[1] = (data.meta.crc16 >> 8) & 0xFF;
     stream[2] = data.meta.crc16 & 0xFF;
@@ -23,7 +19,7 @@ u8_t* dataToStream(DAT_T data){
     return stream;
 }
 
-ACK_T streamToAck(u8_t* stream){
+ACK_T streamToAck(uint8_t* stream){
     ACK_T ack;
     ack.meta.crc16 = (stream[1] << 8) | stream[2];
     for (int i = 0; i < 6; i++){
@@ -35,25 +31,25 @@ ACK_T streamToAck(u8_t* stream){
     return ack;
 }
 
-u16_t crc16(u8_t *data_p, u8_t length){
-    u8_t x;
-    u16_t crc = 0xFFFF;
+uint16_t crc16(uint8_t *data_p, uint8_t length){
+    uint8_t x;
+    uint16_t crc = 0xFFFF;
 
     while (length--){
         x = crc >> 8 ^ *data_p++;
         x ^= x >> 4;
-        crc = (crc << 8) ^ ((u16_t)(x << 12)) ^ ((u16_t)(x << 5)) ^ ((u16_t)x);
+        crc = (crc << 8) ^ ((uint16_t)(x << 12)) ^ ((uint16_t)(x << 5)) ^ ((uint16_t)x);
     }
 
     return crc;
 }
 
-u16_t getId(u8_t* source_mac, u8_t* dest_mac, u8_t* data, u8_t length, u16_t crc16) {
+uint16_t getId(uint8_t* source_mac, uint8_t* dest_mac, uint8_t* data, uint8_t length, uint16_t crc16) {
     if (length == 0 || data == NULL || source_mac == NULL || dest_mac == NULL) {
         return 0; // Return 0 for invalid input
     }
 
-    u16_t id = 0x0;
+    uint16_t id = 0x0;
     int mac_idx = data[length / 2] % 6;
     id |= ((source_mac[mac_idx] + dest_mac[mac_idx]) & 0xFF) << 8;
     id |= ((crc16 & 0xFF) + ((crc16 & 0xFF00) >> 8));
