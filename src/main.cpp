@@ -33,13 +33,13 @@ void loop(){
     float correctedPPM = mq135.getPPM(temperature_c, humidity_perc);
 
     DAT_T data_packet;
-    memcpy(data_packet.data, &temperature_c, sizeof(float));
-    memcpy(data_packet.data + sizeof(float), &humidity_perc, sizeof(float));
-    memcpy(data_packet.data + 2 * sizeof(float), &pressure_mmHg, sizeof(float));
-    memcpy(data_packet.data + 3 * sizeof(float), &correctedPPM, sizeof(float));
+    data_packet.data.temperature = (uint64_t)(int)((temperature_c + 40.) * 100.0);
+    data_packet.data.humidity = (uint64_t)(int)(humidity_perc * 100.0);
+    data_packet.data.pressure = (uint64_t)(int)(pressure_mmHg * 100.0);
+    data_packet.data.ppm = (uint64_t)(int)(correctedPPM * 100.0);
 
     data_packet.type = DAT_MODE;
-    data_packet.meta.crc16 = crc16((uint8_t*)data_packet.data, 4 * sizeof(uint64_t));
+    data_packet.meta.crc16 = crc16(data_packet.data);
     // TODO: Get the manager MAC address
     for(int i = 0; i < 6; i++){
         data_packet.meta.manager_mac[i] = 0x0;
@@ -48,7 +48,7 @@ void loop(){
     for(int i = 0; i < 6; i++){
         data_packet.meta.worker_mac[i] = 0x0;
     }
-    data_packet.meta.id = getId(data_packet.meta.manager_mac, data_packet.meta.manager_mac, (uint8_t*)data_packet.data, 4 * sizeof(uint64_t), data_packet.meta.crc16);
+    data_packet.meta.id = getId(data_packet.meta.manager_mac, data_packet.meta.worker_mac, data_packet.data, data_packet.meta.crc16);
     data_packet.meta.index_packet = 0;
     data_packet.meta.total_packet_s = 1;
 

@@ -24,6 +24,14 @@ struct META_T{
 };
 const int META_SIZE = sizeof(META_T);
 
+struct RAW_DATA_T{
+    uint64_t temperature;
+    uint64_t humidity;
+    uint64_t pressure;
+    uint64_t ppm;
+};
+const int RAW_DATA_SIZE = sizeof(RAW_DATA_T);
+
 /*
 * @brief Structure for a data packet
 * @param type: Type of the packet
@@ -32,10 +40,10 @@ const int META_SIZE = sizeof(META_T);
 * @param data: Data of the packet
 */
 struct DAT_T{
-    uint8_t type = DAT_MODE;
+    uint8_t type;
     META_T meta;
     uint8_t length;
-    uint8_t data[32];
+    RAW_DATA_T data;
 };
 const int DAT_SIZE = sizeof(DAT_T);
 
@@ -56,7 +64,7 @@ const int ACK_SIZE = sizeof(ACK_T);
 * @param length: u16_t length
 * @return u16_t crc16
 */
-uint16_t crc16(uint8_t* data_p, uint8_t length);
+uint16_t crc16(RAW_DATA_T data_p);
 
 /*
 * @brief Get the ID of a packet
@@ -67,6 +75,6 @@ uint16_t crc16(uint8_t* data_p, uint8_t length);
 * @param crc16: u16_t crc16
 * @return u16_t id
 */
-uint16_t getId(uint8_t* source_mac, uint8_t* dest_mac, uint8_t* data, uint8_t length, uint16_t crc16);
+uint16_t getId(uint8_t* source_mac, uint8_t* dest_mac, RAW_DATA_T data_p, uint16_t crc16);
 
 #endif
