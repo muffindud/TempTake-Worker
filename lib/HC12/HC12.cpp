@@ -1,33 +1,39 @@
 #include "HC12.h"
 
 
-HC12::HC12(int rxPin, int txPin, int setPin){
+HC12::HC12(int rxPin, int txPin, int setPin): serial(new SoftwareSerial(rxPin, txPin)){
     this->rxPin = rxPin;
     this->txPin = txPin;
     this->setPin = setPin;
 
-    this->setCommandMode(true);
-    this->sendCommand("AT+B1200");
-    this->sendCommand("AT+P8");
-    this->sendCommand("AT+FU3");
-    this->sendCommand("AT+U8N1");
-    this->setCommandMode(false);
+    serial->begin(1200);
 
-    Serial.begin(1200);
+    // this->setCommandMode(true);
+    // this->sendCommand("AT+B1200");
+    // this->sendCommand("AT+P8");
+    // this->sendCommand("AT+FU3");
+    // this->sendCommand("AT+U8N1");
+    // this->setCommandMode(false);
+
+    // Serial.end();
+    // serial->end();
+    // Serial.begin(1200);
+    // serial->begin(1200);
 }
 
 void HC12::setCommandMode(bool mode){
     digitalWrite(this->setPin, mode ? HIGH : LOW);
     this->commandMode = mode;
-    delay(mode ? 40 : 80);
+    delay(100);
 }
 
 void HC12::sendCommand(String command){
     if (this->commandMode){
-        Serial.println(command);
+        serial->println(command);
+        delay(100);
     }else{
         this->setCommandMode(true);
-        Serial.println(command);
+        serial->println(command);
         this->setCommandMode(false);
     }
 }
@@ -41,26 +47,22 @@ void HC12::setChannel(uint8_t channel){
 }
 
 void HC12::sendData(uint8_t* data_stream){
-    uint8_t* data = (uint8_t*)malloc(64);
-    for(int i = 0; i < 64; i++){
-        data[i] = i < 64 ? data_stream[i] : 0;
-    }
-
-    Serial.write(data, 64);
+    serial->write(data_stream, 64);
 }
 
 bool HC12::ackReceived(uint16_t id){
-    uint8_t* ack_stream = (uint8_t*)malloc(64);
+    uint8_t* ack_stream = (uint8_t*)malloc(ACK_SIZE);
     int incoming = 0;
 
     while(incoming < 100){
         incoming++;
 
-        if(Serial.available() >= 64){
-            Serial.readBytes(ack_stream, 64);
-            ACK_T ack = streamToAck(ack_stream);
-            free(ack_stream);
+        if(serial->available() == ACK_SIZE){
+            serial->readBytes(ack_stream, ACK_SIZE);
+            ACK_T ack;
+            memcpy(&ack, ack_stream, ACK_SIZE);
             if(ack.meta.id == id){
+                free(ack_stream);
                 return true;
             }
         }

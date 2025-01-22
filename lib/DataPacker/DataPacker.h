@@ -3,8 +3,8 @@
 
 #include <Arduino.h>
 
-#define DAT_MODE 0x0D
-#define ACK_MODE 0x0A
+#define DAT_MODE 0xDD
+#define ACK_MODE 0xAA
 
 /*
 * @brief Structure for the meta data of a packet
@@ -31,10 +31,10 @@ const int META_SIZE = sizeof(META_T);
 * @param data: Data of the packet
 */
 struct DAT_T{
-    uint8_t type = 0x0D;
+    uint8_t type = DAT_MODE;
     META_T meta;
     uint8_t length;
-    uint8_t* data;
+    uint8_t data[32];
 };
 const int DAT_SIZE = sizeof(DAT_T);
 
@@ -44,24 +44,10 @@ const int DAT_SIZE = sizeof(DAT_T);
 * @param meta: Meta data of the packet
 */
 struct ACK_T{
-    uint8_t type = 0x0A;
+    uint8_t type = ACK_MODE;
     META_T meta;
 };
 const int ACK_SIZE = sizeof(ACK_T);
-
-/*
-* @brief Create a stream from a DAT_T struct
-* @param data: DAT_T struct
-* @return u8_t* stream
-*/
-uint8_t* dataToStream(DAT_T data);
-
-/*
-* @brief Create a DAT_T struct from a stream
-* @param stream: u8_t* stream
-* @return DAT_T struct
-*/
-ACK_T streamToAck(uint8_t* stream);
 
 /*
 * @brief Calculate the CRC16 checksum of a data

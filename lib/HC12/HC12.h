@@ -2,6 +2,7 @@
 #define HC12_H
 
 #include <Arduino.h>
+#include <SoftwareSerial.h>
 #include "DataPacker.h"
 
 class HC12{
@@ -11,6 +12,8 @@ class HC12{
         int setPin;
         bool commandMode = false;
         bool sleep = false;
+
+        SoftwareSerial* serial;
 
         void setCommandMode(bool mode);
         void sendCommand(String command);
