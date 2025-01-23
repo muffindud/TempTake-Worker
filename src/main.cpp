@@ -33,10 +33,10 @@ void loop(){
     float correctedPPM = mq135.getPPM(temperature_c, humidity_perc);
 
     DAT_T data_packet;
-    data_packet.data.temperature = (uint64_t)(int)((temperature_c + 40.) * 100.0);
-    data_packet.data.humidity = (uint64_t)(int)(humidity_perc * 100.0);
-    data_packet.data.pressure = (uint64_t)(int)(pressure_mmHg * 100.0);
-    data_packet.data.ppm = (uint64_t)(int)(correctedPPM * 100.0);
+    data_packet.data.temperature = (long int)((temperature_c + 40.) * 100.);
+    data_packet.data.humidity = (long int)(humidity_perc * 100.);
+    data_packet.data.pressure = (long int)(pressure_mmHg * 100.);
+    data_packet.data.ppm = (long int)(correctedPPM * 100.);
 
     data_packet.type = DAT_MODE;
     data_packet.meta.crc16 = crc16(data_packet.data);
