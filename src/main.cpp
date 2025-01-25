@@ -56,13 +56,11 @@ void loop(){
 
     data_packet.type = DAT_MODE;
     data_packet.meta.crc16 = crc16(data_packet.data);
-    // TODO: Get the manager MAC address
     for(int i = 0; i < 6; i++){
-        data_packet.meta.manager_mac[i] = 0x0;
+        data_packet.meta.manager_mac[i] = manager_mac.mac[i];
     }
-    // TODO: Get the worker MAC address
     for(int i = 0; i < 6; i++){
-        data_packet.meta.worker_mac[i] = 0x0;
+        data_packet.meta.worker_mac[i] = worker_mac.mac[i];
     }
     data_packet.meta.id = getId(data_packet.meta.manager_mac, data_packet.meta.worker_mac, data_packet.data, data_packet.meta.crc16);
     data_packet.meta.index_packet = 0;
