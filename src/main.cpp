@@ -1,4 +1,3 @@
-#include <config.h>
 #include <Arduino.h>
 #include <Adafruit_BMP085.h>
 #include <Wire.h>
@@ -7,6 +6,9 @@
 #include "MQ135.h"
 #include "HC12.h"
 #include "DataPacker.h"
+#include "ManagerPair.h"
+
+#include <config.h>
 
 // TODO: Calibrate RZero
 #define RZERO 23.4
@@ -16,17 +18,31 @@ DHT dht;
 MQ135 mq135(MQ_135_A_PIN, RZERO);
 HC12 hc12(HC_12_RX_PIN, HC_12_TX_PIN, HC_12_SET_PIN);
 
-int delaySeconds = 10;
+MAC_ADDRESS_T worker_mac = {
+    .mac = {0x55, 0x0, 0x0, 0x0, 0x0, 0x1}
+};
+MAC_ADDRESS_T manager_mac;
 
+int delaySeconds = 10;
 int p = 0;
 
 void setup(){
+    EEPROM.begin();
+    Wire.begin();
     bmp.begin();
-    delay(500);
     dht.setup(DHT_22_PIN);
+    pinMode(PAIR_BUTTON_PIN, INPUT_PULLUP);
+    manager_mac = getManagerMac();
+
+    delay(500);
 }
 
 void loop(){
+    if(digitalRead(PAIR_BUTTON_PIN) == LOW){
+        pairManager(worker_mac);
+        manager_mac = getManagerMac();
+    }
+
     float temperature_c = dht.getTemperature();
     float humidity_perc = dht.getHumidity();
     float pressure_mmHg = bmp.readPressure() / MMHG_TO_PA;

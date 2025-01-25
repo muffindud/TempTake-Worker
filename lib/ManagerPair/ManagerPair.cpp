@@ -1,20 +1,38 @@
 #include "ManagerPair.h"
 
-void pairManager(MAC_ADDRESS_T worker_mac){
+uint8_t local_worker_mac[6];
+
+void onReceive(int num_bytes){
     MAC_ADDRESS_T manager_mac;
+
+    if(num_bytes != 6){
+        return;
+    }
+
+    for(int i = 0; i < 6; i++){
+        manager_mac.mac[i] = Wire.read();
+    }
+
+    setManagerMac(manager_mac);
+}
+
+void onRequest(){
+    Wire.write(local_worker_mac, 6);
+}
+
+void pairManager(MAC_ADDRESS_T worker_mac){
+    Wire.end();
 
     Wire.begin(PAIR_ADDR);
 
-    Wire.requestFrom(PAIR_ADDR, 6);
-    while(Wire.available()){
-        Wire.readBytes(worker_mac.mac, 6);
+    for(int i = 0; i < 6; i++){
+        local_worker_mac[i] = worker_mac.mac[i];
     }
 
-    Wire.beginTransmission(PAIR_ADDR);
-    Wire.write(worker_mac.mac, 6);
-    Wire.endTransmission();
+    Wire.onReceive(onReceive);
+    Wire.onRequest(onRequest);
 
-    setManagerMac(manager_mac);
+    Wire.begin();
 }
 
 void setManagerMac(MAC_ADDRESS_T manager_mac){
