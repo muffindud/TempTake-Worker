@@ -49,20 +49,23 @@ void loop(){
     float correctedPPM = mq135.getPPM(temperature_c, humidity_perc);
 
     DAT_T data_packet;
-    data_packet.data.temperature = (long int)((temperature_c + 40.) * 100.);
-    data_packet.data.humidity = (long int)(humidity_perc * 100.);
-    data_packet.data.pressure = (long int)(pressure_mmHg * 100.);
-    data_packet.data.ppm = (long int)(correctedPPM * 100.);
+    RAW_DATA_T data;
+    data.temperature = (uint64_t)((temperature_c + 40.) * 100.);
+    data.humidity = (uint64_t)(humidity_perc * 100.);
+    data.pressure = (uint64_t)(pressure_mmHg * 100.);
+    data.ppm = (uint64_t)(correctedPPM * 100.);
+
+    memcpy(data_packet.data, &data, RAW_DATA_SIZE);
 
     data_packet.type = DAT_MODE;
-    data_packet.meta.crc16 = crc16(data_packet.data);
+    data_packet.meta.crc16 = crc16(data);
     for(int i = 0; i < 6; i++){
         data_packet.meta.manager_mac[i] = manager_mac.mac[i];
     }
     for(int i = 0; i < 6; i++){
         data_packet.meta.worker_mac[i] = worker_mac.mac[i];
     }
-    data_packet.meta.id = getId(data_packet.meta.manager_mac, data_packet.meta.worker_mac, data_packet.data, data_packet.meta.crc16);
+    data_packet.meta.id = getId(data_packet.meta.manager_mac, data_packet.meta.worker_mac, data, data_packet.meta.crc16);
     data_packet.meta.index_packet = 0;
     data_packet.meta.total_packet_s = 1;
 
