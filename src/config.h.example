@@ -1,14 +1,12 @@
-#define HC_12_RX_PIN 0
-#define HC_12_TX_PIN 1
-#define HC_12_SET_PIN 5
+#define HC_12_RX_PIN 20
+#define HC_12_TX_PIN 21
+#define HC_12_SET_PIN 10
 
-#define DHT_22_PIN 6
-
-#define MQ_135_A_PIN 20
-
-#define PAIR_BUTTON_PIN 9
+#define PAIR_BUTTON_PIN 2
 
 #define BMP_085_ADDR 0x77
+#define AHT10_ADDR 0x38
+#define ENS160_ADDR 0x53
 #define PAIR_ADDR 0x55
 
 #define MMHG_TO_PA 133.322

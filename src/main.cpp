@@ -1,52 +1,62 @@
 #include <Arduino.h>
 #include <Adafruit_BMP085.h>
+#include <Adafruit_AHTX0.h>
+#include <ScioSense_ENS16x.h>
 #include <Wire.h>
-#include <DHT.h>
 
-#include "MQ135.h"
 #include "HC12.h"
 #include "DataPacker.h"
 #include "ManagerPair.h"
+#include "ens16x_i2c_interface.h"
 
 #include <config.h>
 
-// TODO: Calibrate RZero
-#define RZERO 23.4
-
 Adafruit_BMP085 bmp;
-DHT dht;
-MQ135 mq135(MQ_135_A_PIN, RZERO);
-HC12 hc12(HC_12_RX_PIN, HC_12_TX_PIN, HC_12_SET_PIN);
+Adafruit_AHTX0 aht;
+I2cInterface i2c;
+ENS160 ens160;
 
+HC12 hc12(HC_12_RX_PIN, HC_12_TX_PIN, HC_12_SET_PIN);
 MAC_ADDRESS_T worker_mac = {
     .mac = {0x55, 0x0, 0x0, 0x0, 0x0, 0x1}
 };
 MAC_ADDRESS_T manager_mac;
 
-int delaySeconds = 10;
+int delaySeconds = 3;
 int p = 0;
 
 void setup(){
-    EEPROM.begin();
     Wire.begin();
     bmp.begin();
-    dht.setup(DHT_22_PIN);
+    aht.begin();
+    i2c.begin(Wire, ENS160_ADDR);
+    ens160.begin(&i2c);
+
     pinMode(PAIR_BUTTON_PIN, INPUT_PULLUP);
     manager_mac = getManagerMac();
+
+    ens160.startStandardMeasure();
 
     delay(500);
 }
 
 void loop(){
-    if(digitalRead(PAIR_BUTTON_PIN) == LOW){
-        pairManager(worker_mac);
-        manager_mac = getManagerMac();
-    }
+    // if(digitalRead(PAIR_BUTTON_PIN) == LOW){
+    //     pairManager(worker_mac);
+    //     manager_mac = getManagerMac();
+    // }
 
-    float temperature_c = dht.getTemperature();
-    float humidity_perc = dht.getHumidity();
+    ens160.wait();
+    sensors_event_t temp_event, humidity_event;
+    aht.getEvent(&humidity_event, &temp_event);
+    ens160.writeCompensation(temp_event.temperature, humidity_event.relative_humidity);
+    ens160.update();
+
+    float temperature_c = temp_event.temperature;
+    float humidity_perc = humidity_event.relative_humidity;
     float pressure_mmHg = bmp.readPressure() / MMHG_TO_PA;
-    float correctedPPM = mq135.getPPM(temperature_c, humidity_perc);
+    float correctedPPM = ens160.getEco2();
+
 
     DAT_T data_packet;
     RAW_DATA_T data;

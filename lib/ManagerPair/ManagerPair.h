@@ -2,11 +2,13 @@
 #define WORKERPAIR_H
 
 #include <Arduino.h>
-#include <EEPROM.h>
+#include <Preferences.h>
 #include <Wire.h>
 
 #define PAIR_ADDR 0x55
-#define PAIR_BUTTON_PIN 9
+#define PAIR_BUTTON_PIN 2
+
+extern Preferences preferences;
 
 struct MAC_ADDRESS_T{
     uint8_t mac[6];

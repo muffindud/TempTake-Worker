@@ -1,6 +1,7 @@
 #include "ManagerPair.h"
 
 uint8_t local_worker_mac[6];
+Preferences preferences;
 
 void onReceive(int num_bytes){
     MAC_ADDRESS_T manager_mac;
@@ -36,16 +37,20 @@ void pairManager(MAC_ADDRESS_T worker_mac){
 }
 
 void setManagerMac(MAC_ADDRESS_T manager_mac){
-    for(int i = 0; i < 6; i++){
-        EEPROM.write(i, manager_mac.mac[i]);
-    }
+    preferences.clear();
+    preferences.putBytes("manager_mac", manager_mac.mac, 6);
 }
 
 MAC_ADDRESS_T getManagerMac(){
     MAC_ADDRESS_T manager_mac;
 
-    for(int i = 0; i < 6; i++){
-        manager_mac.mac[i] = EEPROM.read(i);
+    preferences.getBytes("manager_mac", manager_mac.mac, 6);
+
+    // if empty return an array of 0x0
+    if(manager_mac.mac[0] == 0){
+        for(int i = 0; i < 6; i++){
+            manager_mac.mac[i] = 0;
+        }
     }
 
     return manager_mac;
