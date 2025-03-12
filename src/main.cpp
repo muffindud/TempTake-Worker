@@ -7,13 +7,11 @@
 #include "HC12.h"
 #include "DataPacker.h"
 #include "ManagerPair.h"
-#include "ens16x_i2c_interface.h"
 
 #include <config.h>
 
 Adafruit_BMP085 bmp;
 Adafruit_AHTX0 aht;
-I2cInterface i2c;
 ENS160 ens160;
 
 HC12 hc12(HC_12_RX_PIN, HC_12_TX_PIN, HC_12_SET_PIN);
@@ -29,8 +27,7 @@ void setup(){
     Wire.begin();
     bmp.begin();
     aht.begin();
-    i2c.begin(Wire, ENS160_ADDR);
-    ens160.begin(&i2c);
+    ens160.begin(&Wire, ENS160_ADDR);
 
     pinMode(PAIR_BUTTON_PIN, INPUT_PULLUP);
     manager_mac = getManagerMac();
