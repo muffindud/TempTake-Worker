@@ -40,6 +40,8 @@ void setup(){
 
 void loop(){
     if(isPairingMode()){
+        // This tears the existing Wire connection, so make sure to reinitialize
+        // any connections
         exchangeManagerCreds();
         managerMac = getManagerMac();
         beginSensors();
@@ -60,8 +62,8 @@ void loop(){
         packet.data.ppm         = (uint64_t)(ens160.getEco2() * 100.);
 
         packet.meta.crc16 = getCRC16(packet.data);
-        memcpy(packet.meta.worker_mac, &workerMac, 6);
-        memcpy(packet.meta.manager_mac, &managerMac, 6);
+        memcpy(packet.meta.worker_mac, workerMac, 6);
+        memcpy(packet.meta.manager_mac, managerMac, 6);
         packet.meta.packet_id = getId(
             packet.meta.manager_mac,
             packet.meta.worker_mac,
