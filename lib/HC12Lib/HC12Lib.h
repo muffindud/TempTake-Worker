@@ -5,6 +5,7 @@
 #include <SoftwareSerial.h>
 
 #include "DataPackerLib.h"
+#include "config.h"
 
 class HC12{
     public:
@@ -24,12 +25,23 @@ class HC12{
          */
         void setChannel(uint8_t channel);
 
+        #ifdef MANAGER
         /**
          * Receive the data from the HC-12 module
          *
          * @returns the received data
          */
         PACKET_T receiveData();
+        #endif
+
+        #ifdef WORKER
+        /**
+         * Send a data packet with the HC-12 module
+         *
+         * @param packet the PACKET_T to send
+         */
+        void sendData(PACKET_T packet);
+        #endif
 
     private:
         SoftwareSerial *serial;

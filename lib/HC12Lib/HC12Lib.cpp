@@ -19,6 +19,7 @@ void HC12::setCommandMode(bool mode){
     delay(100);
 }
 
+#ifdef MANAGER
 PACKET_T HC12::receiveData(){
     if(this->serial->available()){
         uint8_t* dataStream = (uint8_t*)malloc(PACKET_SIZE);
@@ -31,6 +32,15 @@ PACKET_T HC12::receiveData(){
 
     return PACKET_T();
 }
+#endif
+
+#ifdef WORKER
+void HC12::sendData(PACKET_T packet){
+    uint8_t stream[PACKET_SIZE];
+    memcpy(stream, &packet, PACKET_SIZE);
+    this->serial->write(stream, PACKET_SIZE);
+}
+#endif
 
 void HC12::sendCommand(String command){
     if(this->commandMode){
