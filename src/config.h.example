@@ -10,3 +10,5 @@
 #define PAIR_ADDR 0x55
 
 #define MMHG_TO_PA 133.322
+
+#define WORKER
