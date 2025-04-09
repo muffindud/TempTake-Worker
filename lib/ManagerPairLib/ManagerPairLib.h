@@ -31,4 +31,11 @@ void exchangeManagerCreds();
  */
 uint8_t* getManagerMac();
 
+/**
+ * Get the worker mac
+ *
+ * @returns pointer to the worker mac address
+ */
+uint8_t* getWorkerMac();
+
 #endif

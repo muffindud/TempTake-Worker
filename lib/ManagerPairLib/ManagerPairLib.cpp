@@ -3,11 +3,11 @@
 Preferences preferences;
 
 bool pinSetup = false;
-uint8_t workerMac[6];
+uint8_t localWorkerMac[6];
 
 bool isPairingMode(){
     if(!pinSetup){
-        esp_efuse_mac_get_default(workerMac);
+        esp_efuse_mac_get_default(localWorkerMac);
         pinMode(PAIR_BUTTON_PIN, INPUT_PULLUP);
         pinSetup = true;
     }
@@ -35,7 +35,7 @@ void onReceive(int numBytes){
 }
 
 void onRequest(){
-    Wire.write(workerMac, 6);
+    Wire.write(localWorkerMac, 6);
 }
 
 void exchangeManagerCreds(){
@@ -61,4 +61,10 @@ uint8_t* getManagerMac(){
     preferences.end();
 
     return managerMac;
+}
+
+uint8_t* getWorkerMac(){
+    if(!pinSetup) isPairingMode();
+
+    return localWorkerMac;
 }

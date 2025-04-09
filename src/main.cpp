@@ -17,7 +17,7 @@ ENS160 ens160;
 HC12 hc12(HC_12_RX_PIN, HC_12_TX_PIN, HC_12_SET_PIN);
 
 uint8_t* managerMac;
-uint8_t workerMac[6];
+uint8_t* workerMac;
 
 int delaySeconds = 3;
 
@@ -33,7 +33,7 @@ void setup(){
     beginSensors();
 
     managerMac = getManagerMac();
-    esp_efuse_mac_get_default(workerMac);
+    workerMac = getWorkerMac();
 
     delay(500);
 }
