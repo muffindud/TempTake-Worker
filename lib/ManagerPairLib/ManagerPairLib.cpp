@@ -1,5 +1,8 @@
 #include "ManagerPairLib.h"
 
+#define PREFERENCES_NAMESPACE "pair"
+#define MANAGER_MAC_KEY "MAN_MAC"
+
 Preferences preferences;
 
 bool pinSetup = false;
@@ -16,8 +19,8 @@ bool isPairingMode(){
 }
 
 void setManagerMac(uint8_t* managerMac){
-    preferences.begin("pairing", false);
-    preferences.putBytes("MANAGER_MAC", managerMac, 6);
+    preferences.begin(PREFERENCES_NAMESPACE, false);
+    preferences.putBytes(MANAGER_MAC_KEY, &managerMac, 6);
     preferences.end();
 }
 
@@ -55,9 +58,9 @@ void exchangeManagerCreds(){
 uint8_t* getManagerMac(){
     static uint8_t managerMac[6];
 
-    preferences.begin("pairing", true);
+    preferences.begin(PREFERENCES_NAMESPACE, true);
     // If no MAC is present use a broadcast address
-    if(preferences.getBytes("MANAGER_MAC", managerMac, 6) != 6) memset(managerMac, 0xFF, 6);
+    if(preferences.getBytes(MANAGER_MAC_KEY, &managerMac, 6) != 6) memset(managerMac, 0xFF, 6);
     preferences.end();
 
     return managerMac;
