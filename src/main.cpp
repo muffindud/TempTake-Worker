@@ -19,9 +19,13 @@ HC12 hc12(HC_12_RX_PIN, HC_12_TX_PIN, HC_12_SET_PIN);
 uint8_t* managerMac;
 uint8_t* workerMac;
 
+bool sensorsInitialized = false;
+
 int delaySeconds = 3;
 
 void beginSensors(){
+    if(sensorsInitialized) return;
+    sensorsInitialized = true;
     bmp.begin();
     aht.begin();
     ens160.begin(&Wire, ENS160_ADDR);
@@ -44,8 +48,9 @@ void loop(){
         // any connections
         exchangeManagerCreds();
         managerMac = getManagerMac();
-        beginSensors();
+        sensorsInitialized = false;
     }else{
+        beginSensors();
         ens160.wait();
         sensors_event_t tempEvent, humidityEvent;
         aht.getEvent(&humidityEvent, &tempEvent);

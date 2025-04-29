@@ -20,7 +20,7 @@ bool isPairingMode(){
 
 void setManagerMac(uint8_t* managerMac){
     preferences.begin(PREFERENCES_NAMESPACE, false);
-    preferences.putBytes(MANAGER_MAC_KEY, &managerMac, 6);
+    preferences.putBytes(MANAGER_MAC_KEY, managerMac, 6);
     preferences.end();
 }
 
