@@ -2,7 +2,6 @@
 #define HC12LIB_H
 
 #include <Arduino.h>
-#include <SoftwareSerial.h>
 
 #include "DataPackerLib.h"
 #include "config.h"
@@ -44,7 +43,7 @@ class HC12{
         #endif
 
     private:
-        SoftwareSerial *serial;
+        HardwareSerial *serial;
         int setPin;
         bool sleep = false;
         bool commandMode = false;
