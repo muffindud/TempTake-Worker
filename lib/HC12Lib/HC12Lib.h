@@ -42,11 +42,14 @@ class HC12{
         void sendData(PACKET_T packet);
         #endif
 
+        void serialBegin();
+        void serialEnd();
     private:
         HardwareSerial *serial;
         int setPin;
         bool sleep = false;
         bool commandMode = false;
+        uint8_t rx, tx;
 
         void setCommandMode(bool mode);
         void sendCommand(String command);

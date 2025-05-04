@@ -4,15 +4,26 @@ HC12::HC12(uint8_t rx, uint8_t tx, uint8_t setPin){
     // serial = new SoftwareSerial(rx, tx);
     serial = &Serial1;
     this->setPin = setPin;
+    this->rx = rx;
+    this->tx = tx;
     pinMode(setPin, OUTPUT);
     // serial->begin(1200);
-    this->serial->begin(1200, SERIAL_8N1, rx, tx);
+    // this->serial->begin(1200, SERIAL_8N1, rx, tx);
 
     // this->setCommandMode(true);
     // this->sendCommand("AT+1200");
     // this->sendCommand("AT+P8");
     // this->sendCommand("AT+FU3");
     // this->setCommandMode(false);
+}
+
+void HC12::serialBegin(){
+    this->serial->begin(1200, SERIAL_8N1, this->rx, this->tx);
+    delay(100);
+}
+
+void HC12::serialEnd(){
+    this->serial->end();
 }
 
 void HC12::setCommandMode(bool mode){

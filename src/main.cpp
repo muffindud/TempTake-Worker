@@ -1,5 +1,6 @@
 #include <Arduino.h>
-#include <Adafruit_BMP085.h>
+// #include <Adafruit_BMP085.h>
+#include <Adafruit_BMP3XX.h>
 #include <Adafruit_AHTX0.h>
 #include <ScioSense_ENS16x.h>
 #include <Wire.h>
@@ -10,7 +11,8 @@
 
 #include <config.h>
 
-Adafruit_BMP085 bmp;
+// Adafruit_BMP085 bmp;
+Adafruit_BMP3XX bmp;
 Adafruit_AHTX0 aht;
 ENS160 ens160;
 
@@ -21,20 +23,29 @@ uint8_t* workerMac;
 
 bool sensorsInitialized = false;
 
-int delaySeconds = 3;
+int delaySeconds = 10;
 
 void beginSensors(){
     if(sensorsInitialized) return;
+    Wire.begin();
     sensorsInitialized = true;
-    bmp.begin();
+    // bmp.begin();
+    bmp.begin_I2C();
     aht.begin();
     ens160.begin(&Wire, ENS160_ADDR);
     ens160.startStandardMeasure();
 }
 
+void endSensors(){
+    sensorsInitialized = false;
+    Wire.end();
+}
+
 void setup(){
-    Wire.begin();
-    beginSensors();
+    pinMode(MOSFET_PIN, OUTPUT);
+
+    // beginSensors();
+    hc12.serialBegin();
 
     managerMac = getManagerMac();
     workerMac = getWorkerMac();
@@ -50,10 +61,14 @@ void loop(){
         managerMac = getManagerMac();
         sensorsInitialized = false;
     }else{
+        digitalWrite(MOSFET_PIN, HIGH);
+        delay(2000);
         beginSensors();
+        delay(3000);
         ens160.wait();
         sensors_event_t tempEvent, humidityEvent;
         aht.getEvent(&humidityEvent, &tempEvent);
+        bmp.performReading();
         ens160.writeCompensation(tempEvent.temperature, humidityEvent.relative_humidity);
         ens160.update();
 
@@ -63,7 +78,8 @@ void loop(){
 
         packet.data.temperature = (uint64_t)((tempEvent.temperature + 40.) * 100.);
         packet.data.humidity    = (uint64_t)(humidityEvent.relative_humidity * 100.);
-        packet.data.pressure    = (uint64_t)((bmp.readPressure() / MMHG_TO_PA) * 100.);
+        // packet.data.pressure    = (uint64_t)((bmp.readPressure() / MMHG_TO_PA) * 100.);
+        packet.data.pressure    = (uint64_t)((bmp.pressure / MMHG_TO_PA) * 100.);
         packet.data.ppm         = (uint64_t)(ens160.getEco2() * 100.);
 
         packet.meta.crc16 = getCRC16(packet.data);
@@ -82,6 +98,10 @@ void loop(){
 
         hc12.sendData(packet);
 
+        // hc12.serialEnd();
+        endSensors();
+        delay(1000);
+        digitalWrite(MOSFET_PIN, LOW);
         delay(delaySeconds * 1000);
     }
 }

@@ -42,8 +42,6 @@ void onRequest(){
 }
 
 void exchangeManagerCreds(){
-    Wire.end();
-
     Wire.begin(PAIR_ADDR);
 
     Wire.onReceive(onReceive);
@@ -52,7 +50,6 @@ void exchangeManagerCreds(){
     while(isPairingMode()) delay(10);
 
     Wire.end();
-    Wire.begin();
 }
 
 uint8_t* getManagerMac(){
