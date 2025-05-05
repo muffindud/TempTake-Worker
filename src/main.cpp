@@ -21,7 +21,7 @@ uint8_t* workerMac;
 
 bool sensorsInitialized = false;
 
-int delaySeconds = 10;
+int delaySeconds = 30;
 
 void awakeModules(){
     Wire.begin();
@@ -41,8 +41,6 @@ void sleepModules(){
 }
 
 void setup(){
-    pinMode(MOSFET_PIN, OUTPUT);
-
     hc12.serialBegin();
 
     managerMac = getManagerMac();
@@ -59,7 +57,6 @@ void loop(){
         managerMac = getManagerMac();
         sensorsInitialized = false;
     }else{
-        // digitalWrite(MOSFET_PIN, HIGH);
         awakeModules();
 
         ens160.wait();
@@ -95,7 +92,6 @@ void loop(){
         hc12.sendData(packet);
 
         sleepModules();
-        // digitalWrite(MOSFET_PIN, LOW);
-        delay(delaySeconds * 1000);
+        ESP.deepSleep(delaySeconds * 1000000);
     }
 }
