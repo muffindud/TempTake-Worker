@@ -1,5 +1,4 @@
 #include <Arduino.h>
-// #include <Adafruit_BMP085.h>
 #include <Adafruit_BMP3XX.h>
 #include <Adafruit_AHTX0.h>
 #include <ScioSense_ENS16x.h>
@@ -11,7 +10,6 @@
 
 #include <config.h>
 
-// Adafruit_BMP085 bmp;
 Adafruit_BMP3XX bmp;
 Adafruit_AHTX0 aht;
 ENS160 ens160;
@@ -25,26 +23,26 @@ bool sensorsInitialized = false;
 
 int delaySeconds = 10;
 
-void beginSensors(){
-    if(sensorsInitialized) return;
+void awakeModules(){
     Wire.begin();
-    sensorsInitialized = true;
-    // bmp.begin();
+    delay(1000);
     bmp.begin_I2C();
     aht.begin();
     ens160.begin(&Wire, ENS160_ADDR);
     ens160.startStandardMeasure();
+    hc12.wake();
+    delay(1000);
 }
 
-void endSensors(){
-    sensorsInitialized = false;
-    Wire.end();
+void sleepModules(){
+    delay(1000);
+    ens160.setOperatingMode(ENS16X_OPERATING_MODE_DEEP_SLEEP);
+    hc12.sleep();
 }
 
 void setup(){
     pinMode(MOSFET_PIN, OUTPUT);
 
-    // beginSensors();
     hc12.serialBegin();
 
     managerMac = getManagerMac();
@@ -61,10 +59,9 @@ void loop(){
         managerMac = getManagerMac();
         sensorsInitialized = false;
     }else{
-        digitalWrite(MOSFET_PIN, HIGH);
-        delay(2000);
-        beginSensors();
-        delay(3000);
+        // digitalWrite(MOSFET_PIN, HIGH);
+        awakeModules();
+
         ens160.wait();
         sensors_event_t tempEvent, humidityEvent;
         aht.getEvent(&humidityEvent, &tempEvent);
@@ -78,7 +75,6 @@ void loop(){
 
         packet.data.temperature = (uint64_t)((tempEvent.temperature + 40.) * 100.);
         packet.data.humidity    = (uint64_t)(humidityEvent.relative_humidity * 100.);
-        // packet.data.pressure    = (uint64_t)((bmp.readPressure() / MMHG_TO_PA) * 100.);
         packet.data.pressure    = (uint64_t)((bmp.pressure / MMHG_TO_PA) * 100.);
         packet.data.ppm         = (uint64_t)(ens160.getEco2() * 100.);
 
@@ -98,10 +94,8 @@ void loop(){
 
         hc12.sendData(packet);
 
-        // hc12.serialEnd();
-        endSensors();
-        delay(1000);
-        digitalWrite(MOSFET_PIN, LOW);
+        sleepModules();
+        // digitalWrite(MOSFET_PIN, LOW);
         delay(delaySeconds * 1000);
     }
 }
